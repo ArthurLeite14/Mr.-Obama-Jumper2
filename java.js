@@ -191,5 +191,62 @@ function makeCurve(amount) {
     }
     return curve;
 }
+if (isMobile) {
+    document.body.addEventListener('touchstart', (e) => {
+        e.preventDefault();
 
+        /* ativa fullscreen no primeiro toque */
+        if (!document.fullscreenElement) {
+            goFullScreen();
+        }
+
+        jump();
+    }, { passive: false });
+}
+function goFullScreen() {
+    const elem = document.documentElement;
+
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen(); // Safari
+    }
+}
+const startBtn = document.getElementById('startButton');
+
+/* função para fullscreen */
+function goFullScreen() {
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) elem.requestFullscreen();
+    else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+}
+
+/* iniciar o jogo */
+startBtn.addEventListener('click', () => {
+    /* remove o botão */
+    startBtn.style.display = 'none';
+
+    /* fullscreen no mobile */
+    if (isMobile && !document.fullscreenElement) {
+        goFullScreen();
+    }
+
+    /* inicia música e marca o jogo como iniciado */
+    if (!started) {
+        bgMusic.play();
+        started = true;
+    }
+
+    /* adiciona listeners de pulo (toque e teclado) */
+    if (isMobile) {
+        document.body.addEventListener('touchstart', jump, { passive: false });
+    } else {
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'ArrowUp') jump();
+        });
+    }
+
+    /* ativa o loop principal */
+    running = true;
+});
 
