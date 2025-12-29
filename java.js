@@ -1,15 +1,21 @@
 /* ======================
+   DETECÇÃO DE DISPOSITIVO
+====================== */
+const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent);
+
+/* ======================
    ELEMENTOS
 ====================== */
 const player = document.getElementById('player');
 const obstacle = document.querySelector('.tg');
 const scoreEl = document.getElementById('score');
 const scare = document.getElementById('jumpscare');
+const startBtn = document.getElementById('startButton');
 
 /* ======================
    ESTADO DO JOGO
 ====================== */
-let running = true;
+let running = false;
 let started = false;
 let scareTriggered = false;
 let score = 0;
@@ -22,7 +28,7 @@ bgMusic.loop = true;
 bgMusic.volume = 0.5;
 
 /* ======================
-   WEB AUDIO (DISTORÇÃO)
+   WEB AUDIO (ESTOURADO)
 ====================== */
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 const audioCtx = new AudioContext();
@@ -31,14 +37,62 @@ let screamBuffer = null;
 let whisperBuffer = null;
 
 fetch('./audios/jumpscare.mp3')
-  .then(r => r.arrayBuffer())
-  .then(b => audioCtx.decodeAudioData(b))
-  .then(buf => screamBuffer = buf);
+    .then(r => r.arrayBuffer())
+    .then(b => audioCtx.decodeAudioData(b))
+    .then(buf => screamBuffer = buf);
 
 fetch('./audios/i-see-you.mp3')
-  .then(r => r.arrayBuffer())
-  .then(b => audioCtx.decodeAudioData(b))
-  .then(buf => whisperBuffer = buf);
+    .then(r => r.arrayBuffer())
+    .then(b => audioCtx.decodeAudioData(b))
+    .then(buf => whisperBuffer = buf);
+
+/* ======================
+   PULO
+====================== */
+function jump() {
+    if (!running) return;
+
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    if (!player.classList.contains('jump')) {
+        player.classList.add('jump');
+        setTimeout(() => player.classList.remove('jump'), 900);
+    }
+}
+
+/* ======================
+   FULLSCREEN
+====================== */
+function goFullScreen() {
+    const elem = document.documentElement;
+    if (elem.requestFullscreen) elem.requestFullscreen();
+    else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
+}
+
+/* ======================
+   INICIAR JOGO
+====================== */
+startBtn.addEventListener('click', () => {
+    startBtn.style.display = 'none';
+
+    if (isMobile && !document.fullscreenElement) goFullScreen();
+
+    if (!started) {
+        bgMusic.play();
+        started = true;
+    }
+
+    /* adiciona listeners de pulo */
+    if (isMobile) {
+        document.body.addEventListener('touchstart', jump, { passive: false });
+    } else {
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'ArrowUp') jump();
+        });
+    }
+
+    running = true;
+});
 
 /* ======================
    SCORE
@@ -57,26 +111,6 @@ const scoreTimer = setInterval(() => {
 }, 1000);
 
 /* ======================
-   INPUT (TECLADO + TOQUE)
-====================== */
-function jump() {
-    if (!running) return;
-
-    if (!started) {
-        bgMusic.play();
-        started = true;
-    }
-
-    if (!player.classList.contains('jump')) {
-        player.classList.add('jump');
-        setTimeout(() => player.classList.remove('jump'), 900);
-    }
-}
-
-document.addEventListener('keydown', jump);
-document.addEventListener('touchstart', jump);
-
-/* ======================
    LOOP PRINCIPAL
 ====================== */
 const loop = setInterval(() => {
@@ -85,12 +119,12 @@ const loop = setInterval(() => {
     const obsRect = obstacle.getBoundingClientRect();
     const plyRect = player.getBoundingClientRect();
 
-    const hit =
+    const collision =
         obsRect.left < plyRect.right &&
         obsRect.right > plyRect.left &&
         obsRect.bottom > plyRect.top;
 
-    if (hit) gameOver();
+    if (collision) gameOver();
 }, 16);
 
 /* ======================
@@ -126,9 +160,6 @@ function finalScare() {
     bgMusic.pause();
     bgMusic.currentTime = 0;
 
-    document.removeEventListener('keydown', jump);
-    document.removeEventListener('touchstart', jump);
-
     scare.style.transition = 'none';
     scare.style.transform = 'translate(-50%, -50%) scale(0.1)';
     scare.offsetHeight;
@@ -149,7 +180,7 @@ function finalScare() {
 }
 
 /* ======================
-   SOM ESTOURADO
+   SOM DISTORCIDO
 ====================== */
 function playDistorted(buffer) {
     if (!buffer) return;
@@ -186,67 +217,7 @@ function makeCurve(amount) {
 
     for (let i = 0; i < n; i++) {
         const x = (i * 2) / n - 1;
-        curve[i] = ((3 + k) * x * 20 * deg) /
-                   (Math.PI + k * Math.abs(x));
+        curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
     }
     return curve;
 }
-if (isMobile) {
-    document.body.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-
-        /* ativa fullscreen no primeiro toque */
-        if (!document.fullscreenElement) {
-            goFullScreen();
-        }
-
-        jump();
-    }, { passive: false });
-}
-function goFullScreen() {
-    const elem = document.documentElement;
-
-    if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-    } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen(); // Safari
-    }
-}
-const startBtn = document.getElementById('startButton');
-
-/* função para fullscreen */
-function goFullScreen() {
-    const elem = document.documentElement;
-    if (elem.requestFullscreen) elem.requestFullscreen();
-    else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
-}
-
-/* iniciar o jogo */
-startBtn.addEventListener('click', () => {
-    /* remove o botão */
-    startBtn.style.display = 'none';
-
-    /* fullscreen no mobile */
-    if (isMobile && !document.fullscreenElement) {
-        goFullScreen();
-    }
-
-    /* inicia música e marca o jogo como iniciado */
-    if (!started) {
-        bgMusic.play();
-        started = true;
-    }
-
-    /* adiciona listeners de pulo (toque e teclado) */
-    if (isMobile) {
-        document.body.addEventListener('touchstart', jump, { passive: false });
-    } else {
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' || e.code === 'ArrowUp') jump();
-        });
-    }
-
-    /* ativa o loop principal */
-    running = true;
-});
-
