@@ -1,206 +1,195 @@
 /* ======================
    ELEMENTOS
 ====================== */
-const bo = document.querySelector('.bo');
-const tg = document.querySelector('.tg');
-const scoreElement = document.querySelector('.score');
+const player = document.getElementById('player');
+const obstacle = document.querySelector('.tg');
+const scoreEl = document.getElementById('score');
 const scare = document.getElementById('jumpscare');
 
 /* ======================
    ESTADO DO JOGO
 ====================== */
-let jogoAtivo = true;
-let musicaIniciada = false;
-let jumpScareAtivado = false;
+let running = true;
+let started = false;
+let scareTriggered = false;
+let score = 0;
 
 /* ======================
    ÁUDIO NORMAL
 ====================== */
-const musica = new Audio('./audios/musica de fundo.mp3');
-musica.loop = true;
-musica.volume = 0.5;
+const bgMusic = new Audio('./audios/musica de fundo.mp3');
+bgMusic.loop = true;
+bgMusic.volume = 0.5;
 
 /* ======================
-   WEB AUDIO (SOM PODRE)
+   WEB AUDIO (DISTORÇÃO)
 ====================== */
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 const audioCtx = new AudioContext();
 
-let scareBuffer = null;
-let preScareBuffer = null;
+let screamBuffer = null;
+let whisperBuffer = null;
 
-/* carrega o grito */
 fetch('./audios/jumpscare.mp3')
-    .then(r => r.arrayBuffer())
-    .then(b => audioCtx.decodeAudioData(b))
-    .then(buf => scareBuffer = buf);
+  .then(r => r.arrayBuffer())
+  .then(b => audioCtx.decodeAudioData(b))
+  .then(buf => screamBuffer = buf);
 
-/* carrega o "i see you" */
 fetch('./audios/i-see-you.mp3')
-    .then(r => r.arrayBuffer())
-    .then(b => audioCtx.decodeAudioData(b))
-    .then(buf => preScareBuffer = buf);
+  .then(r => r.arrayBuffer())
+  .then(b => audioCtx.decodeAudioData(b))
+  .then(buf => whisperBuffer = buf);
 
 /* ======================
    SCORE
 ====================== */
-let score = 0;
-
-const scoreInterval = setInterval(() => {
-    if (!jogoAtivo) return;
+const scoreTimer = setInterval(() => {
+    if (!running) return;
 
     score++;
-    scoreElement.innerText = `Score: ${score}`;
+    scoreEl.innerText = `Score: ${score}`;
 
-    if (score >= 50 && !jumpScareAtivado) {
-        jumpScareAtivado = true;
-        jogoAtivo = false;
-        jumpScareFinal();
+    if (score >= 50 && !scareTriggered) {
+        scareTriggered = true;
+        running = false;
+        finalScare();
     }
 }, 1000);
 
 /* ======================
-   PULO
+   INPUT (TECLADO + TOQUE)
 ====================== */
-const jump = () => {
-    if (!jogoAtivo) return;
+function jump() {
+    if (!running) return;
 
-    if (!musicaIniciada) {
-        musica.play();
-        musicaIniciada = true;
+    if (!started) {
+        bgMusic.play();
+        started = true;
     }
 
-    if (!bo.classList.contains('jump')) {
-        bo.classList.add('jump');
-
-        setTimeout(() => {
-            bo.classList.remove('jump');
-        }, 1000);
+    if (!player.classList.contains('jump')) {
+        player.classList.add('jump');
+        setTimeout(() => player.classList.remove('jump'), 900);
     }
-};
+}
 
 document.addEventListener('keydown', jump);
+document.addEventListener('touchstart', jump);
 
 /* ======================
    LOOP PRINCIPAL
 ====================== */
 const loop = setInterval(() => {
-    if (!jogoAtivo) return;
+    if (!running) return;
 
-    const tgPosition = tg.offsetLeft;
-    const boPosition = +window.getComputedStyle(bo)
-        .bottom.replace('px', '');
+    const obsRect = obstacle.getBoundingClientRect();
+    const plyRect = player.getBoundingClientRect();
 
-    if (tgPosition <= 140 && tgPosition > 0 && boPosition < 300) {
-        gameOver();
-    }
-}, 10);
+    const hit =
+        obsRect.left < plyRect.right &&
+        obsRect.right > plyRect.left &&
+        obsRect.bottom > plyRect.top;
+
+    if (hit) gameOver();
+}, 16);
 
 /* ======================
-   GAME OVER NORMAL
+   GAME OVER
 ====================== */
 function gameOver() {
-    jogoAtivo = false;
+    running = false;
 
-    tg.style.animation = 'none';
-    tg.style.display = 'none';
+    obstacle.style.animation = 'none';
+    obstacle.style.display = 'none';
 
-    bo.style.animation = 'none';
-    bo.src = './issets/morri.png';
-    bo.style.width = '100px';
+    player.style.animation = 'none';
+    player.src = './issets/morri.png';
 
-    musica.pause();
-    musica.currentTime = 0;
+    bgMusic.pause();
+    bgMusic.currentTime = 0;
 
     clearInterval(loop);
-    clearInterval(scoreInterval);
+    clearInterval(scoreTimer);
 
-    alert('BOOM MORREU ACABOU');
+    setTimeout(() => {
+        alert('BOOM MORREU ACABOU');
+    }, 100);
 }
 
 /* ======================
    JUMPSCARE FINAL
 ====================== */
-function jumpScareFinal() {
-    /* PARA TUDO */
+function finalScare() {
     clearInterval(loop);
-    clearInterval(scoreInterval);
+    clearInterval(scoreTimer);
 
-    musica.pause();
-    musica.currentTime = 0;
+    bgMusic.pause();
+    bgMusic.currentTime = 0;
+
     document.removeEventListener('keydown', jump);
+    document.removeEventListener('touchstart', jump);
 
-    /* VISUAL DISTORCIDO */
     scare.style.transition = 'none';
-    scare.style.transform =
-        'translate(-50%, -50%) scaleX(0.1) scaleY(0.1)';
+    scare.style.transform = 'translate(-50%, -50%) scale(0.1)';
+    scare.offsetHeight;
 
-    scare.offsetHeight; // força reflow
+    scare.style.transition = 'transform 0.2s';
+    scare.style.transform = 'translate(-50%, -50%) scale(2.2)';
 
-    scare.style.transform =
-        'translate(-50%, -50%) scaleX(2.2) scaleY(1)';
-
-    /* GARANTE ÁUDIO */
     audioCtx.resume();
 
-    /* 1️⃣ "I SEE YOU" */
-    playLowQuality(preScareBuffer);
+    playDistorted(whisperBuffer);
+    setTimeout(() => playDistorted(screamBuffer), 450);
 
-    /* 2️⃣ GRITO */
-    setTimeout(() => {
-        playLowQuality(scareBuffer);
-    }, 450);
-
-    /* TREME A TELA */
     document.body.style.animation = 'violentShake 0.35s';
 
-    alert('I CAN ACTULLY SEE YOU');
+    setTimeout(() => {
+        alert('I CAN ACTUALLY SEE YOU');
+    }, 200);
 }
 
 /* ======================
-   SOM LOW QUALITY / ESTOURADO
+   SOM ESTOURADO
 ====================== */
-function playLowQuality(buffer) {
+function playDistorted(buffer) {
     if (!buffer) return;
 
-    const source = audioCtx.createBufferSource();
-    source.buffer = buffer;
+    const src = audioCtx.createBufferSource();
+    src.buffer = buffer;
 
     const distortion = audioCtx.createWaveShaper();
-    distortion.curve = makeDistortionCurve(900);
-    distortion.oversample = 'none';
+    distortion.curve = makeCurve(900);
 
     const gain = audioCtx.createGain();
-    gain.gain.value = 3.8;
+    gain.gain.value = 4;
 
     const lowpass = audioCtx.createBiquadFilter();
     lowpass.type = 'lowpass';
     lowpass.frequency.value = 1100;
 
-    source.connect(distortion);
+    src.connect(distortion);
     distortion.connect(gain);
     gain.connect(lowpass);
     lowpass.connect(audioCtx.destination);
 
-    source.start(0);
+    src.start();
 }
 
 /* ======================
    CURVA DE DISTORÇÃO
 ====================== */
-function makeDistortionCurve(amount) {
-    const k = amount;
+function makeCurve(amount) {
     const n = 44100;
     const curve = new Float32Array(n);
+    const k = amount;
     const deg = Math.PI / 180;
 
     for (let i = 0; i < n; i++) {
         const x = (i * 2) / n - 1;
-        curve[i] =
-            ((3 + k) * x * 20 * deg) /
-            (Math.PI + k * Math.abs(x));
+        curve[i] = ((3 + k) * x * 20 * deg) /
+                   (Math.PI + k * Math.abs(x));
     }
-
     return curve;
 }
+
 

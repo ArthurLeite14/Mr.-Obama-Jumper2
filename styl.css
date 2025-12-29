@@ -1,156 +1,146 @@
+/* RESET + CONFIGURAÇÃO GLOBAL */
 * {
-    padding: 0;
     margin: 0;
-    background-color: black;
+    padding: 0;
     box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
 }
 
-.bk{
-    width: 90%;
-    border: 4px solid white;
-    height: 100vh;
+body {
+    background-color: black;
     overflow: hidden;
-    position: relative;
-    
 }
 
+/* BACKGROUND DO JOGO */
+.bk {
+    width: 100vw;
+    height: 100vh;
+    border: 4px solid white;
+    position: relative;
+    overflow: hidden;
+    background-color: black;
+}
+
+/* TÍTULO */
 .title {
     position: absolute;
-    top: 10px;                 /* distância do topo */
+    top: 2vh;
     left: 50%;
     transform: translateX(-50%);
+    z-index: 10;
+    pointer-events: none;
 
+    font-family: 'Press Start 2P', cursive;
+    font-size: clamp(16px, 5vw, 40px);
     color: #FFEB3B;
-       text-shadow:
-        -3px -3px 0 #fff,
-         3px -3px 0 #fff,
-        -3px  3px 0 #fff,
-         3px  3px 0 #fff;
-
-    font-family: 'Press Start 2P', cursive; /* arcade */
-    font-size: 40px;
     text-align: center;
 
+    text-shadow:
+        -2px -2px 0 #fff,
+         2px -2px 0 #fff,
+        -2px  2px 0 #fff,
+         2px  2px 0 #fff;
+}
+
+/* SCORE */
+.score {
+    position: absolute;
+    top: 2vh;
+    right: 3vw;
     z-index: 10;
-    pointer-events: none;      /* não interfere no jogo */
+
+    font-family: 'Press Start 2P', cursive;
+    font-size: clamp(14px, 4vw, 30px);
+    color: white;
 }
 
-.tg{
+/* PERSONAGEM */
+.bo {
     position: absolute;
     bottom: 0;
-    width: 180px;
-    animation: tg-animation 3s infinite linear;
-}
-@keyframes tg-animation{
-    from{
-        right: 0;
-    }
-
-    to {
-        right: 100%;
-    }
+    left: 5vw;
+    width: 10vw;
+    max-width: 100px;
 }
 
-.bo{
+/* INIMIGO NO CHÃO */
+.tg {
     position: absolute;
     bottom: 0;
-    width: 100px;
-    left: 50px;
-   
+    width: 12vw;
+    max-width: 180px;
+    animation: tg-animation 3s linear infinite;
 }
 
-
-
-.jump{
-     animation: jump 1s ease-out;
+@keyframes tg-animation {
+    from { right: -20%; }
+    to   { right: 110%; }
 }
 
-@keyframes jump{
-  0%{
-    bottom: 0;
-  }
-
-  20%{
-    bottom: 250px;
-  }
-
-
-  40%{
-    bottom: 400px;
-  }
-
-  50%{
-    bottom: 400px;
-
-  }
-  80%{
-    bottom: 400px;
-
-
-  }
-
-  100%{
-    bottom: 0;
-  }
-}
-
-.ai{
+/* INIMIGO AÉREO */
+.ai {
     position: absolute;
-    bottom: 550px;
-    width: 150px;
-     animation: ieon 20s infinite linear;
+    bottom: 60vh;
+    width: 10vw;
+    max-width: 150px;
+    animation: ai-animation 20s linear infinite;
 }
 
-@keyframes ieon{
-        from{
-        right: -100%;
-    }
-
-    to {
-        right: 100%;
-    }
+@keyframes ai-animation {
+    from { right: -30%; }
+    to   { right: 120%; }
 }
 
+/* PULO RESPONSIVO */
+.jump {
+    animation: jump 0.9s ease-out;
+}
+
+@keyframes jump {
+    0%   { bottom: 0; }
+    30%  { bottom: 35vh; }
+    50%  { bottom: 45vh; }
+    80%  { bottom: 45vh; }
+    100% { bottom: 0; }
+}
+
+/* JUMPSCARE */
 #jumpscare {
     position: fixed;
     top: 50%;
     left: 50%;
-
     width: 100vw;
     height: 100vh;
-
-    object-fit: fill; /* 🔥 ESTICA SEM RESPEITAR PROPORÇÃO */
-
-    transform: translate(-50%, -50%) scaleX(0.2) scaleY(0);
+    object-fit: fill;
+    transform: translate(-50%, -50%) scale(0);
     z-index: 9999;
     pointer-events: none;
 }
 
-
-
+/* TREMOR VIOLENTO */
 @keyframes violentShake {
-  0%   { transform: translate(0); }
-  10%  { transform: translate(-25px, 20px); }
-  20%  { transform: translate(25px, -20px); }
-  30%  { transform: translate(-20px, -25px); }
-  40%  { transform: translate(20px, 25px); }
-  50%  { transform: translate(-15px, 15px); }
-  60%  { transform: translate(15px, -15px); }
-  70%  { transform: translate(-10px, -10px); }
-  80%  { transform: translate(10px, 10px); }
-  90%  { transform: translate(-5px, 5px); }
-  100% { transform: translate(0); }
+    0%   { transform: translate(0); }
+    10%  { transform: translate(-20px, 15px); }
+    20%  { transform: translate(20px, -15px); }
+    30%  { transform: translate(-15px, -20px); }
+    40%  { transform: translate(15px, 20px); }
+    50%  { transform: translate(-10px, 10px); }
+    60%  { transform: translate(10px, -10px); }
+    70%  { transform: translate(-5px, -5px); }
+    80%  { transform: translate(5px, 5px); }
+    90%  { transform: translate(-3px, 3px); }
+    100% { transform: translate(0); }
 }
 
+/* AJUSTES FINOS PARA CELULAR */
+@media (max-width: 768px) {
+    .bo {
+        left: 3vw;
+    }
 
-
-.score {
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    color: #fff; /* verde arcade */
-    font-size: 18px;
-    font-family: 'Press Start 2P', cursive;
-    z-index: 10;
-    font-size: 30px;
+    .score {
+        top: 8vh;
+    }
 }
