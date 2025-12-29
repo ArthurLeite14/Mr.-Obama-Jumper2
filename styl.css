@@ -1,29 +1,38 @@
-/* RESET + CONFIGURAÇÃO GLOBAL */
+/* ======================
+   RESET + GLOBAL
+====================== */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     user-select: none;
     -webkit-user-select: none;
-    touch-action: manipulation;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
-body {
-    background-color: black;
+html, body {
+    width: 100%;
+    height: 100%;
     overflow: hidden;
+    background-color: black;
+    font-family: 'Press Start 2P', cursive;
 }
 
-/* BACKGROUND DO JOGO */
+/* ======================
+   ÁREA DO JOGO
+====================== */
 .bk {
     width: 100vw;
     height: 100vh;
     border: 4px solid white;
     position: relative;
     overflow: hidden;
-    background-color: black;
 }
 
-/* TÍTULO */
+/* ======================
+   TÍTULO
+====================== */
 .title {
     position: absolute;
     top: 2vh;
@@ -31,12 +40,9 @@ body {
     transform: translateX(-50%);
     z-index: 10;
     pointer-events: none;
-
-    font-family: 'Press Start 2P', cursive;
-    font-size: clamp(16px, 5vw, 40px);
+    font-size: clamp(16px,5vw,40px);
     color: #FFEB3B;
     text-align: center;
-
     text-shadow:
         -2px -2px 0 #fff,
          2px -2px 0 #fff,
@@ -44,19 +50,44 @@ body {
          2px  2px 0 #fff;
 }
 
-/* SCORE */
+/* ======================
+   SCORE
+====================== */
 .score {
     position: absolute;
     top: 2vh;
     right: 3vw;
     z-index: 10;
-
-    font-family: 'Press Start 2P', cursive;
-    font-size: clamp(14px, 4vw, 30px);
+    font-size: clamp(14px,4vw,30px);
     color: white;
 }
 
-/* PERSONAGEM */
+/* ======================
+   BOTÃO INICIAR
+====================== */
+#startButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    padding: 20px 40px;
+    font-size: 18px;
+    color: #FFEB3B;
+    background-color: black;
+    border: 4px solid white;
+    cursor: pointer;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+#startButton:hover {
+    transform: translate(-50%, -50%) scale(1.05);
+    background-color: #111;
+}
+
+/* ======================
+   PERSONAGEM
+====================== */
 .bo {
     position: absolute;
     bottom: 0;
@@ -65,7 +96,7 @@ body {
     max-width: 100px;
 }
 
-/* INIMIGO NO CHÃO */
+/* INIMIGO TERRESTRE */
 .tg {
     position: absolute;
     bottom: 0;
@@ -76,7 +107,7 @@ body {
 
 @keyframes tg-animation {
     from { right: -20%; }
-    to   { right: 110%; }
+    to { right: 110%; }
 }
 
 /* INIMIGO AÉREO */
@@ -90,7 +121,7 @@ body {
 
 @keyframes ai-animation {
     from { right: -30%; }
-    to   { right: 120%; }
+    to { right: 120%; }
 }
 
 /* PULO RESPONSIVO */
@@ -99,10 +130,10 @@ body {
 }
 
 @keyframes jump {
-    0%   { bottom: 0; }
-    30%  { bottom: 35vh; }
-    50%  { bottom: 45vh; }
-    80%  { bottom: 45vh; }
+    0% { bottom: 0; }
+    30% { bottom: 35vh; }
+    50% { bottom: 45vh; }
+    80% { bottom: 45vh; }
     100% { bottom: 0; }
 }
 
@@ -119,7 +150,7 @@ body {
     pointer-events: none;
 }
 
-/* TREMOR VIOLENTO */
+/* TREME A TELA */
 @keyframes violentShake {
     0%   { transform: translate(0); }
     10%  { transform: translate(-20px, 15px); }
@@ -134,38 +165,10 @@ body {
     100% { transform: translate(0); }
 }
 
-/* AJUSTES FINOS PARA CELULAR */
+/* ======================
+   AJUSTES MOBILE
+====================== */
 @media (max-width: 768px) {
-    .bo {
-        left: 3vw;
-    }
-
-    .score {
-        top: 8vh;
-    }
-}
-* {
-    touch-action: none;
-    -webkit-tap-highlight-color: transparent;
-}
-#startButton {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 100;
-    padding: 20px 40px;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 18px;
-    color: #FFEB3B;
-    background-color: black;
-    border: 4px solid white;
-    cursor: pointer;
-    text-align: center;
-    transition: transform 0.2s, background-color 0.2s;
-}
-
-#startButton:hover {
-    transform: translate(-50%, -50%) scale(1.05);
-    background-color: #111;
+    .bo { left: 3vw; }
+    .score { top: 8vh; }
 }
