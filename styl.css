@@ -11,24 +11,28 @@
     height: 100vh;
     overflow: hidden;
     position: relative;
+    
 }
 
 .title {
     position: absolute;
-    top: 10px;
+    top: 10px;                 /* distância do topo */
     left: 50%;
     transform: translateX(-50%);
+
     color: #FFEB3B;
-    text-shadow:
+       text-shadow:
         -3px -3px 0 #fff,
          3px -3px 0 #fff,
         -3px  3px 0 #fff,
          3px  3px 0 #fff;
-    font-family: 'Press Start 2P', cursive;
+
+    font-family: 'Press Start 2P', cursive; /* arcade */
     font-size: 40px;
     text-align: center;
+
     z-index: 10;
-    pointer-events: none;
+    pointer-events: none;      /* não interfere no jogo */
 }
 
 .tg{
@@ -38,8 +42,13 @@
     animation: tg-animation 3s infinite linear;
 }
 @keyframes tg-animation{
-    from{ right: 0; }
-    to { right: 100%; }
+    from{
+        right: 0;
+    }
+
+    to {
+        right: 100%;
+    }
 }
 
 .bo{
@@ -47,42 +56,77 @@
     bottom: 0;
     width: 100px;
     left: 50px;
+   
 }
 
+
+
 .jump{
-    animation: jump 1s ease-out;
+     animation: jump 1s ease-out;
 }
+
 @keyframes jump{
-  0%{ bottom: 0; }
-  20%{ bottom: 250px; }
-  40%{ bottom: 400px; }
-  50%{ bottom: 400px; }
-  80%{ bottom: 400px; }
-  100%{ bottom: 0; }
+  0%{
+    bottom: 0;
+  }
+
+  20%{
+    bottom: 250px;
+  }
+
+
+  40%{
+    bottom: 400px;
+  }
+
+  50%{
+    bottom: 400px;
+
+  }
+  80%{
+    bottom: 400px;
+
+
+  }
+
+  100%{
+    bottom: 0;
+  }
 }
 
 .ai{
     position: absolute;
     bottom: 550px;
     width: 150px;
-    animation: ieon 20s infinite linear;
+     animation: ieon 20s infinite linear;
 }
+
 @keyframes ieon{
-    from{ right: -100%; }
-    to { right: 100%; }
+        from{
+        right: -100%;
+    }
+
+    to {
+        right: 100%;
+    }
 }
 
 #jumpscare {
     position: fixed;
     top: 50%;
     left: 50%;
+
     width: 100vw;
     height: 100vh;
-    object-fit: fill;
+
+    object-fit: fill; /* 🔥 ESTICA SEM RESPEITAR PROPORÇÃO */
+
     transform: translate(-50%, -50%) scaleX(0.2) scaleY(0);
     z-index: 9999;
     pointer-events: none;
 }
+
+
 
 @keyframes violentShake {
   0%   { transform: translate(0); }
@@ -98,12 +142,15 @@
   100% { transform: translate(0); }
 }
 
+
+
 .score {
     position: absolute;
     top: 15px;
     right: 20px;
-    color: #fff;
+    color: #fff; /* verde arcade */
+    font-size: 18px;
     font-family: 'Press Start 2P', cursive;
-    font-size: 30px;
     z-index: 10;
+    font-size: 30px;
 }
