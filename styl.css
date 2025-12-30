@@ -1,159 +1,109 @@
-/* ======================
-   RESET + GLOBAL
-====================== */
 * {
-    margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: none;
-}
-
-html, body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
+    margin: 0;
     background-color: black;
-    font-family: 'Press Start 2P', cursive;
+    box-sizing: border-box;
 }
 
-/* ======================
-   ÁREA DO JOGO
-====================== */
-.bk {
-    width: 100vw;
-    height: 100vh;
+.bk{
+    width: 90%;
     border: 4px solid white;
-    position: relative;
+    height: 100vh;
     overflow: hidden;
+    position: relative;
 }
 
-/* ======================
-   TÍTULO
-====================== */
 .title {
     position: absolute;
-    top: 2vh;
+    top: 10px;
     left: 50%;
     transform: translateX(-50%);
     color: #FFEB3B;
-    text-shadow: -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff;
-    font-size: clamp(16px, 5vw, 40px);
+    text-shadow:
+        -3px -3px 0 #fff,
+         3px -3px 0 #fff,
+        -3px  3px 0 #fff,
+         3px  3px 0 #fff;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 40px;
     text-align: center;
     z-index: 10;
     pointer-events: none;
 }
 
-/* ======================
-   SCORE
-====================== */
-.score {
-    position: absolute;
-    top: 2vh;
-    right: 3vw;
-    color: #fff;
-    font-size: clamp(14px, 4vw, 30px);
-    z-index: 10;
-}
-
-/* ======================
-   PERSONAGEM
-====================== */
-.bo {
+.tg{
     position: absolute;
     bottom: 0;
-    left: 5vw;
-    width: 10vw;
-    max-width: 100px;
+    width: 180px;
+    animation: tg-animation 3s infinite linear;
+}
+@keyframes tg-animation{
+    from{ right: 0; }
+    to { right: 100%; }
 }
 
-/* ======================
-   INIMIGO TERRESTRE
-====================== */
-.tg {
+.bo{
     position: absolute;
     bottom: 0;
-    width: 12vw;
-    max-width: 180px;
-    animation: tg-animation 3s linear infinite;
+    width: 100px;
+    left: 50px;
 }
 
-@keyframes tg-animation {
-    from { right: -20%; }
-    to { right: 110%; }
+.jump{
+    animation: jump 1s ease-out;
+}
+@keyframes jump{
+  0%{ bottom: 0; }
+  20%{ bottom: 250px; }
+  40%{ bottom: 400px; }
+  50%{ bottom: 400px; }
+  80%{ bottom: 400px; }
+  100%{ bottom: 0; }
 }
 
-/* ======================
-   INIMIGO AÉREO
-====================== */
-.ai {
+.ai{
     position: absolute;
-    bottom: 60vh;
-    width: 10vw;
-    max-width: 150px;
-    animation: ai-animation 20s linear infinite;
+    bottom: 550px;
+    width: 150px;
+    animation: ieon 20s infinite linear;
+}
+@keyframes ieon{
+    from{ right: -100%; }
+    to { right: 100%; }
 }
 
-@keyframes ai-animation {
-    from { right: -30%; }
-    to { right: 120%; }
-}
-
-/* ======================
-   PULO
-====================== */
-.jump {
-    animation: jump 0.9s ease-out;
-}
-
-@keyframes jump {
-    0% { bottom: 0; }
-    30% { bottom: 35vh; }
-    50% { bottom: 45vh; }
-    80% { bottom: 45vh; }
-    100% { bottom: 0; }
-}
-
-/* ======================
-   JUMPSCARE
-====================== */
 #jumpscare {
     position: fixed;
     top: 50%;
     left: 50%;
     width: 100vw;
     height: 100vh;
-    object-fit: cover;
-    transform: translate(-50%, -50%) scale(0);
+    object-fit: fill;
+    transform: translate(-50%, -50%) scaleX(0.2) scaleY(0);
     z-index: 9999;
     pointer-events: none;
 }
 
-/* ======================
-   TREME A TELA
-====================== */
 @keyframes violentShake {
-    0% { transform: translate(0); }
-    10% { transform: translate(-20px, 15px); }
-    20% { transform: translate(20px, -15px); }
-    30% { transform: translate(-15px, -20px); }
-    40% { transform: translate(15px, 20px); }
-    50% { transform: translate(-10px, 10px); }
-    60% { transform: translate(10px, -10px); }
-    70% { transform: translate(-5px, -5px); }
-    80% { transform: translate(5px, 5px); }
-    90% { transform: translate(-3px, 3px); }
-    100% { transform: translate(0); }
+  0%   { transform: translate(0); }
+  10%  { transform: translate(-25px, 20px); }
+  20%  { transform: translate(25px, -20px); }
+  30%  { transform: translate(-20px, -25px); }
+  40%  { transform: translate(20px, 25px); }
+  50%  { transform: translate(-15px, 15px); }
+  60%  { transform: translate(15px, -15px); }
+  70%  { transform: translate(-10px, -10px); }
+  80%  { transform: translate(10px, 10px); }
+  90%  { transform: translate(-5px, 5px); }
+  100% { transform: translate(0); }
 }
 
-/* ======================
-   RESPONSIVIDADE
-====================== */
-@media (max-width: 768px) {
-    .bo { left: 3vw; width: 15vw; max-width: 80px; }
-    .tg { width: 18vw; max-width: 140px; }
-    .ai { width: 15vw; max-width: 120px; bottom: 50vh; }
-    .title { font-size: clamp(14px, 6vw, 30px); }
-    .score { font-size: clamp(12px, 5vw, 25px); top: 5vh; }
+.score {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: #fff;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 30px;
+    z-index: 10;
 }

@@ -1,25 +1,17 @@
 /* ======================
-   DETECÇÃO DE DISPOSITIVO
-====================== */
-const isMobile = /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(navigator.userAgent);
-
-/* ======================
    ELEMENTOS
 ====================== */
 const bo = document.querySelector('.bo');
 const tg = document.querySelector('.tg');
 const scoreElement = document.querySelector('.score');
 const scare = document.getElementById('jumpscare');
-const startBtn = document.getElementById('startButton');
 
 /* ======================
-   ESTADO
+   ESTADO DO JOGO
 ====================== */
-let running = false;
-let started = false;
-let scareTriggered = false;
-let score = 0;
-let lastTime = null;
+let jogoAtivo = true;
+let musicaIniciada = false;
+let jumpScareAtivado = false;
 
 /* ======================
    ÁUDIO NORMAL
@@ -29,180 +21,139 @@ musica.loop = true;
 musica.volume = 0.5;
 
 /* ======================
-   ÁUDIO WEB
+   WEB AUDIO (SOM PODRE)
 ====================== */
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 const audioCtx = new AudioContext();
+
 let scareBuffer = null;
 let preScareBuffer = null;
 
 fetch('./audios/jumpscare.mp3')
-  .then(r => r.arrayBuffer())
-  .then(b => audioCtx.decodeAudioData(b))
-  .then(buf => scareBuffer = buf);
+    .then(r => r.arrayBuffer())
+    .then(b => audioCtx.decodeAudioData(b))
+    .then(buf => scareBuffer = buf);
 
 fetch('./audios/i-see-you.mp3')
-  .then(r => r.arrayBuffer())
-  .then(b => audioCtx.decodeAudioData(b))
-  .then(buf => preScareBuffer = buf);
+    .then(r => r.arrayBuffer())
+    .then(b => audioCtx.decodeAudioData(b))
+    .then(buf => preScareBuffer = buf);
 
 /* ======================
-   FULLSCREEN
+   SCORE
 ====================== */
-function goFullScreen() {
-  const elem = document.documentElement;
-  if (elem.requestFullscreen) elem.requestFullscreen();
-  else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen();
-}
+let score = 0;
+const scoreInterval = setInterval(() => {
+    if (!jogoAtivo) return;
+    score++;
+    scoreElement.innerText = `Score: ${score}`;
+    if (score >= 15 && !jumpScareAtivado) {
+        jumpScareAtivado = true;
+        jogoAtivo = false;
+        jumpScareFinal();
+    }
+}, 1000);
 
 /* ======================
    PULO
 ====================== */
-function jump() {
-  if (!running) return;
-  if (audioCtx.state === 'suspended') audioCtx.resume();
-
-  if (!bo.classList.contains('jump')) {
-    bo.classList.add('jump');
-    setTimeout(() => bo.classList.remove('jump'), 900);
-  }
-}
-
-/* ======================
-   INICIAR JOGO
-====================== */
-startBtn.addEventListener('click', () => {
-  startBtn.style.display = 'none';
-
-  if (isMobile && !document.fullscreenElement) goFullScreen();
-  if (!started) { musica.play(); started = true; }
-
-  // Eventos de pulo
-  if (isMobile) document.body.addEventListener('touchstart', jump, { passive: false });
-  else document.addEventListener('keydown', e => {
-    if (e.code === 'Space' || e.code === 'ArrowUp') jump();
-  });
-
-  running = true;
-  lastTime = performance.now();
-  requestAnimationFrame(gameLoop);
-});
+const jump = () => {
+    if (!jogoAtivo) return;
+    if (!musicaIniciada) { musica.play(); musicaIniciada = true; }
+    if (!bo.classList.contains('jump')) {
+        bo.classList.add('jump');
+        setTimeout(() => bo.classList.remove('jump'), 1000);
+    }
+};
+document.addEventListener('keydown', jump);
 
 /* ======================
    LOOP PRINCIPAL
 ====================== */
-function gameLoop(timestamp) {
-  if (!running) return;
-
-  const deltaTime = timestamp - lastTime;
-  lastTime = timestamp;
-
-  // Score
-  score += deltaTime / 1000;
-  scoreElement.innerText = `Score: ${Math.floor(score)}`;
-
-  if (score >= 15 && !scareTriggered) {
-    scareTriggered = true;
-    running = false;
-    jumpScareFinal();
-    return;
-  }
-
-  // Colisão
-  const tgRect = tg.getBoundingClientRect();
-  const boRect = bo.getBoundingClientRect();
-
-  if (tgRect.left < boRect.right &&
-      tgRect.right > boRect.left &&
-      tgRect.bottom > boRect.top) {
-    gameOver();
-    return;
-  }
-
-  requestAnimationFrame(gameLoop);
-}
+const loop = setInterval(() => {
+    if (!jogoAtivo) return;
+    const tgPosition = tg.offsetLeft;
+    const boPosition = +window.getComputedStyle(bo).bottom.replace('px', '');
+    if (tgPosition <= 140 && tgPosition > 0 && boPosition < 300) {
+        gameOver();
+    }
+}, 10);
 
 /* ======================
    GAME OVER
 ====================== */
 function gameOver() {
-  running = false;
-
-  tg.style.animation = 'none';
-  tg.style.display = 'none';
-
-  bo.style.animation = 'none';
-  bo.src = './issets/morri.png';
-  bo.style.width = '100px';
-
-  musica.pause();
-  musica.currentTime = 0;
-
-  setTimeout(() => { alert('BOOM MORREU ACABOU'); }, 100);
+    jogoAtivo = false;
+    tg.style.animation = 'none';
+    tg.style.display = 'none';
+    bo.style.animation = 'none';
+    bo.src = './issets/morri.png';
+    bo.style.width = '100px';
+    musica.pause();
+    musica.currentTime = 0;
+    clearInterval(loop);
+    clearInterval(scoreInterval);
+    alert('BOOM MORREU ACABOU');
 }
 
 /* ======================
    JUMPSCARE FINAL
 ====================== */
 function jumpScareFinal() {
-  musica.pause();
-  musica.currentTime = 0;
+    clearInterval(loop);
+    clearInterval(scoreInterval);
+    musica.pause();
+    musica.currentTime = 0;
+    document.removeEventListener('keydown', jump);
 
-  scare.style.transition = 'none';
-  scare.style.transform = 'translate(-50%, -50%) scale(0.1)';
-  scare.offsetHeight;
+    scare.style.transition = 'none';
+    scare.style.transform = 'translate(-50%, -50%) scaleX(0.1) scaleY(0)';
+    scare.offsetHeight;
+    scare.style.transform = 'translate(-50%, -50%) scaleX(2.2) scaleY(1)';
 
-  scare.style.transition = 'transform 0.2s';
-  scare.style.transform = 'translate(-50%, -50%) scale(2.2)';
+    audioCtx.resume();
+    playLowQuality(preScareBuffer);
+    setTimeout(() => playLowQuality(scareBuffer), 450);
 
-  audioCtx.resume();
-  playLowQuality(preScareBuffer);
-  setTimeout(() => playLowQuality(scareBuffer), 450);
-
-  document.body.style.animation = 'violentShake 0.35s';
-
-  setTimeout(() => { alert('I CAN ACTUALLY SEE YOU'); }, 200);
+    document.body.style.animation = 'violentShake 0.35s';
+    alert('I CAN ACTULLY SEE YOU');
 }
 
 /* ======================
-   SOM ESTOURADO
+   SOM LOW QUALITY
 ====================== */
 function playLowQuality(buffer) {
-  if (!buffer) return;
+    if (!buffer) return;
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
 
-  const src = audioCtx.createBufferSource();
-  src.buffer = buffer;
+    const distortion = audioCtx.createWaveShaper();
+    distortion.curve = makeDistortionCurve(900);
+    distortion.oversample = 'none';
 
-  const distortion = audioCtx.createWaveShaper();
-  distortion.curve = makeDistortionCurve(900);
+    const gain = audioCtx.createGain();
+    gain.gain.value = 3.8;
 
-  const gain = audioCtx.createGain();
-  gain.gain.value = 3.8;
+    const lowpass = audioCtx.createBiquadFilter();
+    lowpass.type = 'lowpass';
+    lowpass.frequency.value = 1100;
 
-  const lowpass = audioCtx.createBiquadFilter();
-  lowpass.type = 'lowpass';
-  lowpass.frequency.value = 1100;
+    source.connect(distortion);
+    distortion.connect(gain);
+    gain.connect(lowpass);
+    lowpass.connect(audioCtx.destination);
 
-  src.connect(distortion);
-  distortion.connect(gain);
-  gain.connect(lowpass);
-  lowpass.connect(audioCtx.destination);
-
-  src.start();
+    source.start(0);
 }
 
-/* ======================
-   CURVA DE DISTORÇÃO
-====================== */
 function makeDistortionCurve(amount) {
-  const k = amount;
-  const n = 44100;
-  const curve = new Float32Array(n);
-  const deg = Math.PI / 180;
-
-  for (let i = 0; i < n; i++) {
-    const x = (i*2)/n - 1;
-    curve[i] = ((3 + k) * x * 20 * deg)/(Math.PI + k * Math.abs(x));
-  }
-  return curve;
+    const k = amount;
+    const n = 44100;
+    const curve = new Float32Array(n);
+    const deg = Math.PI / 180;
+    for (let i = 0; i < n; i++) {
+        const x = (i * 2) / n - 1;
+        curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+    }
+    return curve;
 }
