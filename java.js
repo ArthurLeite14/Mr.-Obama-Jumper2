@@ -52,7 +52,7 @@ const scoreInterval = setInterval(() => {
     score++;
     scoreElement.innerText = `Score: ${score}`;
 
-    if (score >= 1500 && !jumpScareAtivado) {
+    if (score >= 100 && !jumpScareAtivado) {
         jumpScareAtivado = true;
         jogoAtivo = false;
         jumpScareFinal();
