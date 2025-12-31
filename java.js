@@ -106,7 +106,7 @@ function gameOver() {
     tg.style.display = 'none';
 
     bo.style.animation = 'none';
-    bo.src = './issets/morri.png';
+    bo.src = './issets/uop.png';
     bo.style.width = '100px';
 
     musica.pause();
