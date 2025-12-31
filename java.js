@@ -52,7 +52,7 @@ const scoreInterval = setInterval(() => {
     score++;
     scoreElement.innerText = `Score: ${score}`;
 
-    if (score >= 23 && !jumpScareAtivado) {
+    if (score >= 20 && !jumpScareAtivado) {
         jumpScareAtivado = true;
         jogoAtivo = false;
         jumpScareFinal();
@@ -106,7 +106,7 @@ function gameOver() {
     tg.style.display = 'none';
 
     bo.style.animation = 'none';
-    bo.src = './issets/uop.png';
+    bo.src = './issets/morri.png';
     bo.style.width = '100px';
 
     musica.pause();
